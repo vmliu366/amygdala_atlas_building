@@ -14,6 +14,8 @@ Before running the workflow, you must adjust the configuration files located in 
     This is the core configuration file. You will need to update the following crucial paths specific to your environment:
     *   **Input Data:** Check `in_images` (e.g., `LH_T2w`). It expects a template string like `/path/to/data/{subject}_ses-000_hemi-L.nii.gz` indicating where your raw input NIfTI files live.
     *   **Participants TSV:** Ensure `participants_tsv` maps back to your subject list TSV (default is `'config/participants_adult_94T.tsv'`).
+        *   **⚠️ IMPORTANT NOTE:** When adding or changing cohorts, the nested key under `participants_tsv` must perfectly match the name listed in the `cohorts:` array.
+        *   **Naming Constraint:** Always use `PascalCase` or pure alphanumeric strings (e.g., `Adult94TLabeledROILH`) for your cohort names. **Do not use underscores (`_`) or hyphens (`-`)** as Snakemake wildcard constraints (`[a-zA-Z0-9]+`) will fail to parse them!
     *   **Initialization:** Update `init_template` paths to point to your chosen initial boot-strapping template (e.g., a specific subject like `sub-2092`).
     *   **Singularity Paths:** Update the paths under the `singularity:` block so Snakemake points to the correct `.sif` containers for `ants`, `itksnap`, and `prepdwi`.
 
