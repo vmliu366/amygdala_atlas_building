@@ -1,15 +1,26 @@
 #for template building - mix of fmriprep and internally processed-data
 in_images:
-  LH_T1w: '/nfs/khan/trainees/mliu366/2_histo3D_reg/subj-reg/01_rigid_init/snakeinput_t20temp/T1w/{subject}_hemi-L_T1w.nii.gz'
-
-# in_labels:
-#   LH_T1w: '/nfs/khan/trainees/msalma29/amygdala_project/atlas/scripts/data_94T_aligned/training/labels/{subject}_ses-000_hemi-L.nii.gz'
+  T1w: "/nfs/khan/trainees/mliu366/2_histo3D_reg/subj-reg/01_rigid_init/snakeinput_t20temp/T1w/{subject}_hemi-L_T1w.nii.gz"
 
 aux_images:
   LH_R1map: '/nfs/khan/trainees/mliu366/2_histo3D_reg/subj-reg/01_rigid_init/snakeinput_t20temp/R1/{subject}_hemi-L_R1map.nii.gz'
-# #for naming the final files in templateflow output
-# bids_suffix:
-#   RH_T2w: 'desc-brain_T1w'
+
+in_dseg:
+  T1w: '/nfs/khan/trainees/mliu366/2_histo3D_reg/subj-reg/01_rigid_init/snakeinput_t20temp/dseg/{subject}_hemi-L_dseg3.nii.gz'
+
+in_lut:
+  T1w: '/nfs/khan/trainees/mliu366/2_histo3D_reg/subj-reg/01_rigid_init/snakeinput_t20temp/dseg/{subject}_hemi-L_LUT.txt'
+
+atlas_labels:
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  - 6
+  - 7
+  - 8
+  - 9
 
 cohorts:
   - 'T20test'
@@ -26,16 +37,7 @@ template_name: 'T20test'  #tpl-{template_name}
 
 #assumes that templateflow templates are linked in resources folder
 init_template:
-  LH_T1w: '/nfs/khan/trainees/mliu366/2_histo3D_reg/subj-reg/01_rigid_init/snakeinput_t20temp/T1w/sub-T20_hemi-L_T1w.nii.gz'
-
-#  LH_T1w: '/home/myaser/scratch/template_building/iter_90_atlas_p2mm/template_LH_T1w_p1mm.nii.gz'
-
-# mask_template:
-#   LH_T1w: '/nfs/khan/trainees/msalma29/amygdala_project/atlas/scripts/averaged_masked_94T_to_mni/{subject}_desc-T2wAverage_mni_dseg.nii.gz'
-
-
-# #will register cohort templates to the std template after they are generated
-# std_template_name: 'sub-2054_ses-RH_Template'
+  T1w: '/nfs/khan/trainees/mliu366/2_histo3D_reg/subj-reg/01_rigid_init/snakeinput_t20temp/T1w/sub-T20_hemi-L_T1w.nii.gz'
 
 #keep this empty, is set by command-line ( --config run_iter=1 or --config run_cohort=young)
 run_cohort: 
@@ -63,7 +65,7 @@ singularity:
 ants:
   dim: 3
   shape_update:
-      gradient_step: 0.1
+      gradient_step: 0.25
 
 
 

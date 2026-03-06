@@ -27,7 +27,6 @@ wildcard_constraints:
 if config['run_iter'] != None:
     rule all_iter:
         input:
-            # final registration-driven template(s)
             expand(
                 'results/cohort-{cohort}/iter_{iter}/template_{channel}.nii.gz',
                 cohort=cohorts,
@@ -39,6 +38,19 @@ if config['run_iter'] != None:
                 cohort=cohorts,
                 aux_channel=aux_channels,
                 iter=range(1, int(config['run_iter']) + 1)
-            ) if len(aux_channels) > 0 else []
+            ) if len(aux_channels) > 0 else [],
+            expand(
+                "results/cohort-{cohort}/iter_{iter}/prob_atlas/prob_atlas_{channel}_4D.nii.gz",
+                cohort=config['cohorts'],
+                iter=config['run_iter'],
+                channel=channels
+            ),
+            expand(
+                "results/cohort-{cohort}/iter_{iter}/prob_atlas/{subject}_iter{iter}_euclidean_distance.csv",
+                cohort=config['cohorts'],
+                subject=all_subjects,
+                iter=config['run_iter']
+            )
+            
 
 include: 'rules/ants_template.smk'
