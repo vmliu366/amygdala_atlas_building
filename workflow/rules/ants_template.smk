@@ -228,4 +228,58 @@ rule apply_template_update:
 #        antsApplyTransforms -d {params.dim} -i {input.mask} -o {output} \
 #        -r {input.ref} -t {input.invwarp} -t {input.invwarp} -t {input.invwarp} -t {input.invwarp} -t [{input.affine},1] \
 #        --interpolation NearestNeighbor &> {log}
-#        '''
+#        ''
+
+rule warp_aux_to_template:
+    input:
+        aux = lambda wildcards: config['aux_images'][wildcards.aux_channel].format(subject=wildcards.subject),
+        warp = 'results/cohort-{cohort}/iter_{iteration}/{subject}_1Warp.nii.gz',
+        affine = 'results/cohort-{cohort}/iter_{iteration}/{subject}_0GenericAffine.mat',
+        ref = lambda wildcards: f"results/cohort-{wildcards.cohort}/iter_{wildcards.iteration}/template_{channels[0]}.nii.gz"
+    output:
+        warped = 'results/cohort-{cohort}/iter_{iteration}/{subject}_WarpedAuxToTemplate_{aux_channel}.nii.gz'
+    params:
+        dim = config['ants']['dim']
+    log:
+        'logs/warp_aux_to_template/cohort-{cohort}/iter_{iteration}_{subject}_{aux_channel}.log'
+    threads: 1
+    group: 'aux_maps'
+    container: config['singularity']['ants']
+    resources:
+        mem_mb = 8000,
+        time = 15
+    shell:
+        r'''
+        antsApplyTransforms \
+          -d {params.dim} \
+          --float 1 \
+          --verbose 1 \
+          -i {input.aux} \
+          -r {input.ref} \
+          -o {output.warped} \
+          -n Linear \
+          -t {input.warp} \
+          -t {input.affine} &> {log}
+        '''
+
+rule avg_aux_warped:
+    input:
+        targets=lambda wildcards: expand(
+            'results/cohort-{cohort}/iter_{iteration}/{subject}_WarpedAuxToTemplate_{aux_channel}.nii.gz',
+            subject=subjects[wildcards.cohort],
+            iteration=wildcards.iteration,
+            aux_channel=wildcards.aux_channel,
+            cohort=wildcards.cohort
+        )
+    params:
+        dim = config['ants']['dim']
+    output:
+        'results/cohort-{cohort}/iter_{iteration}/aux_template_{aux_channel}.nii.gz'
+    log:
+        'logs/avg_aux_warped/cohort-{cohort}/iter_{iteration}_{aux_channel}.log'
+    group: 'aux_maps'
+    container: config['singularity']['ants']
+    shell:
+        r'''
+        AverageImages {params.dim} {output} 0 {input.targets} &> {log}
+        '''

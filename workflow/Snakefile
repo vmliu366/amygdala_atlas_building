@@ -1,65 +1,6 @@
-# from os.path import join
-# import itertools
-# import pandas as pd
-
-# configfile: 'config/config.yml'
-
-# if config['run_cohort'] == None:
-#     cohorts = config['cohorts']
-# else:
-#     cohorts = [config['run_cohort']]
-
-# #subjects is a dict, indexed by the cohort
-# #load participants.tsv file, and strip off sub- from participant_id column
-# subjects = dict()
-# all_subjects = list()
-# for cohort in config['cohorts']:
-#     print(cohort)
-#     subjects[cohort] = [ s.strip('sub-') for s in pd.read_table(config['participants_tsv'][cohort]).participant_id.to_list() ] 
-#     all_subjects = all_subjects + subjects[cohort]
-#     print(all_subjects)
-
-# #get channels using keys in in_images
-# channels = list(config['in_images'].keys())
-
-# print(channels)
-
-# #need this to make sure iterations don't go below 0!
-# wildcard_constraints:
-#     iteration="[0-9]+",
-#     cohort="[a-zA-Z0-9]+"
-
-
-# # rule all_composite_warps:
-# #     input: expand('results/composite/sub-{subject}_to-{template}_via-cohort_{warptype}.nii.gz',\
-# #                     template=config['std_template_name'],\
-# #                     warptype=['CompositeWarp','CompositeInverseWarp'],\
-# #                     subject=all_subjects)
-
-
-# if config['run_iter'] != None:
-#     rule all_iter:
-#         input:
-#             expand('results/cohort-{cohort}/iter_{iter}/template_{channel}.nii.gz',cohort=cohorts,channel=channels,iter=config['run_iter'])
-# # else:
-# #     rule all_finaltemplate:
-# #         input:
-# #             json = 'results/tpl-{name}/template_description.json'.format(name=config['template_name'])
-
-
-
-# include: 'rules/ants_template.smk'
-# # include: 'rules/common.smk'
-# # include: 'rules/reg_t2_to_t1.smk'
-# # include: 'rules/templateflow.smk'
-# # include: 'rules/cohort_template_to_std.smk'
-
-
-
 from os.path import join
 import itertools
 import pandas as pd
-# from snakebids import bids
 
 configfile: 'config/config.yml'
 
@@ -68,43 +9,36 @@ if config['run_cohort'] == None:
 else:
     cohorts = [config['run_cohort']]
 
-#subjects is a dict, indexed by the cohort
-#load participants.tsv file, and strip off sub- from participant_id column
 subjects = dict()
 all_subjects = list()
 for cohort in config['cohorts']:
-    subjects[cohort] = [ s for s in pd.read_table(config['participants_tsv'][cohort]).participant_id.to_list() ] 
+    subjects[cohort] = [s for s in pd.read_table(config['participants_tsv'][cohort]).participant_id.to_list()]
     all_subjects = all_subjects + subjects[cohort]
 
 print(all_subjects)
-#get channels using keys in in_images
-channels = list(config['in_images'].keys())
 
-#need this to make sure iterations don't go below 0!
+channels = list(config['in_images'].keys())
+aux_channels = list(config.get('aux_images', {}).keys())
+
 wildcard_constraints:
     iteration="[0-9]+",
     cohort="[a-zA-Z0-9]+"
 
-
-
-# rule all_composite_warps:
-#     input: expand('results/composite/sub-{subject}_to-{template}_via-cohort_{warptype}.nii.gz',\
-#                     template=config['std_template_name'],\
-#                     warptype=['CompositeWarp','CompositeInverseWarp'],\
-#                     subject=all_subjects)
-
-
 if config['run_iter'] != None:
     rule all_iter:
         input:
-             expand('results/cohort-{cohort}/iter_{iter}/template_{channel}.nii.gz',cohort=cohorts,channel=channels,iter=config['run_iter'])
+            # final registration-driven template(s)
+            expand(
+                'results/cohort-{cohort}/iter_{iter}/template_{channel}.nii.gz',
+                cohort=cohorts,
+                channel=channels,
+                iter=[config['run_iter']]
+            ),
+            expand(
+                'results/cohort-{cohort}/iter_{iter}/aux_template_{aux_channel}.nii.gz',
+                cohort=cohorts,
+                aux_channel=aux_channels,
+                iter=range(1, int(config['run_iter']) + 1)
+            ) if len(aux_channels) > 0 else []
 
-
-# else:
-#     rule all_finaltemplate:
-#         input:
-#             json = 'results/tpl-{name}/template_description.json'.format(name=config['template_name'])
-
-# include: 'rules/preproc_t2.smk'
 include: 'rules/ants_template.smk'
-# include: 'rules/cohort_template_to_std.smk'
