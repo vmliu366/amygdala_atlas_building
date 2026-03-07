@@ -8,12 +8,7 @@ dseg = nib.load(snakemake.input.dseg)
 data = dseg.get_fdata()
 aff = dseg.affine
 
-lut = pd.read_csv(
-    snakemake.input.lut,
-    sep=r"\s+",
-    header=None,
-    names=["label", "roi"]
-)
+lut = pd.read_csv(snakemake.input.lut)
 
 rows = []
 

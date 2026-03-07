@@ -6,7 +6,7 @@ aux_images:
   LH_R1map: '/nfs/khan/trainees/mliu366/2_histo3D_reg/subj-reg/01_rigid_init/snakeinput_t20temp/R1/{subject}_hemi-L_R1map.nii.gz'
 
 in_dseg:
-  T1w: '/nfs/khan/trainees/mliu366/2_histo3D_reg/subj-reg/01_rigid_init/snakeinput_t20temp/dseg/{subject}_hemi-L_dseg3.nii.gz'
+  T1w: '/nfs/khan/trainees/mliu366/2_histo3D_reg/subj-reg/01_rigid_init/snakeinput_t20temp/dseg/{subject}_hemi-L_dseg.nii.gz'
 
 in_lut:
   T1w: '/nfs/khan/trainees/mliu366/2_histo3D_reg/subj-reg/01_rigid_init/snakeinput_t20temp/dseg/{subject}_hemi-L_LUT.txt'
@@ -21,19 +21,31 @@ atlas_labels:
   - 7
   - 8
   - 9
+  - 10
+  - 11
+  - 12
+  - 13
+  - 14
+  - 15
+  - 16
+  - 17
+  - 18
+  - 19
+  - 20
+  - 21
 
 cohorts:
-  - 'T20test'
+  - 'T20Template'
 
 participants_tsv:
-  T20test: 'config/participants.tsv'
+  T20Template: 'config/participants.tsv'
 
 
 resolution_index: 0.05 # res-{resolution_index}  
 #shape, zooms, origin will be obtained from the nifti itself
 
 #for templateflow-style output
-template_name: 'T20test'  #tpl-{template_name} 
+template_name: 'T20Template'  #tpl-{template_name} 
 
 #assumes that templateflow templates are linked in resources folder
 init_template:
