@@ -42,15 +42,22 @@ if config['run_iter'] != None:
             expand(
                 "results/cohort-{cohort}/iter_{iter}/prob_atlas/prob_atlas_{channel}_4D.nii.gz",
                 cohort=config['cohorts'],
-                iter=config['run_iter'],
+                iter=[config['run_iter']],
                 channel=channels
             ),
             expand(
                 "results/cohort-{cohort}/iter_{iter}/prob_atlas/{subject}_iter{iter}_euclidean_distance.csv",
                 cohort=config['cohorts'],
                 subject=all_subjects,
-                iter=config['run_iter']
+                iter=range(1, int(config['run_iter']) + 1)
+            ),
+            expand(
+                "results/cohort-{cohort}/iter_{iter}/prob_atlas/{subject}_iter{iter}_centroids.csv",
+                cohort=config['cohorts'],
+                subject=all_subjects,
+                iter=range(1, int(config['run_iter']) + 1)
             )
             
 
-include: 'rules/ants_template.smk'
+include: 'rules/ants_template.smk' # this is the original greedy-driven registration smk, fast
+include: 'rules/ants_registration.smk' # this is ants based, resouce intensive 
